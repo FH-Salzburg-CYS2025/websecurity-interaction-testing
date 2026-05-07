@@ -1,0 +1,30 @@
+[package]
+name = "unofficial-suas-it-thesis"
+version = "1.0.0"
+entrypoint = "template/thesis.typ"
+authors = [ "Kurt Fuchs" ]
+license = "MIT"
+description = "Unofficial thesis template used at the Salzburg University of Applied Sciences (FH Salzburg) at the faculty of computer science."
+repository = "https://github.com/KurtFuchs/unofficial-suas-its-template"
+keywords = [
+  "Puch Urstein",
+  "Salzburg University of Applied Sciences",
+  "SUAS",
+  "Fachhochschule Salzburg",
+  "Information Technologies",
+  "Thesis",
+  "Masterarbeit",
+  "Bachelorarbeit",
+  "Final Thesis",
+  "Bachelor's  Thesis",
+  "Master's  Thesis"
+]
+categories = [ "thesis" ]
+exclude = [ ]
+disciplines = [ ]
+compiler = "0.14.2"
+
+[template]
+path = "template"
+entrypoint = "thesis.typ"
+thumbnail = ""

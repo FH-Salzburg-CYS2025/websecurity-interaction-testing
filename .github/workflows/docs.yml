@@ -1,0 +1,113 @@
+name: Deploy Docs
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Create doc header for protocol link
+        run: |
+          cat > doc-header.html << 'EOF'
+          <style>
+            .protocol-link {
+              position: fixed;
+              top: 8px;
+              right: 16px;
+              z-index: 9999;
+            }
+            .protocol-link a {
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              background: #5c6bc0;
+              color: #ffffff !important;
+              text-decoration: none !important;
+              font-family: sans-serif;
+              font-size: 15px;
+              font-weight: 600;
+              padding: 8px 18px;
+              border-radius: 6px;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+              transition: background 0.2s;
+            }
+            .protocol-link a:hover {
+              background: #7986cb;
+            }
+          </style>
+          <div class="protocol-link">
+            <a href="https://fh-salzburg-cys2025.github.io/websecurity-interaction-testing/protocol.html">
+              📄 Lab Protocol
+            </a>
+          </div>
+          EOF
+
+      - name: Build docs
+        working-directory: xss_ca
+        run: cargo doc --release --no-deps --document-private-items --bins --target x86_64-unknown-linux-gnu
+        env:
+          RUSTDOCFLAGS: "--default-theme dark --html-in-header ../doc-header.html"
+
+      - name: Add redirect index
+        working-directory: xss_ca
+        run: |
+          mkdir -p target/x86_64-unknown-linux-gnu/doc
+          echo '<meta http-equiv="refresh" content="0; url=xss_ca/index.html">' > target/x86_64-unknown-linux-gnu/doc/index.html
+
+      - name: Install Libertinus fonts
+        run: |
+          curl -fsSL https://github.com/alerque/libertinus/releases/download/v7.040/Libertinus-7.040.zip -o libertinus.zip
+          unzip -q libertinus.zip -d libertinus
+          mkdir -p ~/.local/share/fonts
+          find libertinus -name "*.otf" -exec cp {} ~/.local/share/fonts/ \;
+          fc-cache -f
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v5
+
+      - name: Compile protocol PDF
+        run: typst compile --root document document/template/thesis.typ document/protocol.pdf
+
+      - name: Add PDF viewer and PDF to docs site
+        run: |
+          cp document/protocol.pdf xss_ca/target/x86_64-unknown-linux-gnu/doc/protocol.pdf
+          cat > xss_ca/target/x86_64-unknown-linux-gnu/doc/protocol.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Lab Protocol</title>
+              <style>html, body, iframe { margin: 0; padding: 0; width: 100%; height: 100%; border: none; }</style>
+            </head>
+            <body>
+              <iframe src="protocol.pdf"></iframe>
+            </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: xss_ca/target/x86_64-unknown-linux-gnu/doc
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

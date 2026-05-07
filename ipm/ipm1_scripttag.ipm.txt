@@ -1,0 +1,21 @@
+[System]
+Name: ScriptTag
+
+[Parameter]
+-- Template: {open_tag}{whitespace}{payload}{close_tag}
+-- Example: <script>console.log('rowhammer')</script>
+-- Group: rowhammer
+
+open_tag (enum): script_open, Script_open, SCRIPT_open
+payload (enum): squote_payload, dquote_payload, eval_payload
+close_tag (enum): script_close, Script_close, SCRIPT_close
+encoding (enum): none, url_encoded, html_entity
+whitespace (enum): none, space, tab, newline
+
+[Constraint]
+-- html_entity breaks tag recognition for uppercase variant
+encoding = "html_entity" => open_tag != "SCRIPT_open"
+-- url encoding makes script tags unrecognizable without decoder
+encoding = "url_encoded" => open_tag = "script_open"
+-- eval payload wraps in eval(), html entity encoding breaks it
+encoding = "html_entity" => payload != "eval_payload"

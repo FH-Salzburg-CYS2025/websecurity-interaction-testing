@@ -1,0 +1,38 @@
+[build]
+target = "x86_64-unknown-linux-gnu"
+
+# Modern x86-64 CPU (Haswell and newer, x86-64-v3 ISA)
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    "-C", "target-cpu=x86-64-v3",                   # Enable instructions and tuning for Haswell+ CPUs (includes AVX2, SSE4.2, etc.).
+    "-C", "link-arg=-Wl,--icf=all",                 # Enable Identical Code Folding (deduplicate identical functions/data).
+    # --- Compiler Features ---
+    "-Z", "unstable-options",                       # Enable experimental features (required for nightly flags)
+    "-Z", "dylib-lto",                              # Link Time Optimization for dynamic libraries
+
+    # --- Code Generation ---
+    "-C", "codegen-units=1",                        # Single codegen unit for maximum optimization
+    "-C", "panic=abort",                            # Abort on panic (smaller binary, no unwinding)
+    "-C", "lto=fat",                                # Full Link Time Optimization (cross-crate)
+
+    # --- Security Hardening ---
+    "-C", "unsafe-allow-abi-mismatch=sanitizer",    # Bypass ABI checks (use with caution)
+    "-C", "link-arg=-fstack-protector-strong",      #Stack smashing protection
+    "-C", "link-arg=-fstack-clash-protection",      # Stack clash protection
+    "-C", "link-arg=-znow",                         # Disable lazy binding (PLT/GOT protection)
+    "-C", "link-arg=-zrelro",                       # Relocation read-only (GOT protection)
+    "-C", "link-arg=-Wl,-z,noexecstack",            # Non-executable stack
+    "-C", "link-self-contained=+linker",            # Self-contained linker (security)
+
+    # --- Linker Optimizations ---
+    "-C", "link-arg=-Ofast",                        # Aggressive linker optimizations
+    "-C", "link-arg=-Wl,-O3",                       # Optimize linker for performance
+    "-C", "link-arg=-Wl,--gc-sections",             # Dead code elimination
+    "-C", "link-arg=-Wl,--strip-all",               # Strip all symbols
+    "-C", "linker-features=+lld",                   # Use LLD linker
+    "-C", "linker-plugin-lto",                      # LTO plugin for the linker
+    "-C", "link-arg=-flto",                         # Enable LTO in the linker
+
+    # --- Debug/Post-Processing ---
+    "-C", "embed-bitcode=yes",                      # Embed LLVM bitcode (for LTO/post-processing)
+]

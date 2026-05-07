@@ -1,0 +1,24 @@
+[System]
+Name: AttributeBreakout
+
+[Parameter]
+-- Template: {breakout}{prefix}<{tag} {event}="{payload}"{suffix}>
+-- Example: "><img onerror="console.log('rowhammer')">
+-- Group: rowhammer
+
+breakout (enum): dquote_close, squote_close, angle_close
+prefix (enum): empty, space, slash
+tag (enum): img, svg, script
+event (enum): onerror, onload, onmouseover
+payload (enum): squote_payload, dquote_payload
+suffix (enum): empty, comment_close, space_slash
+
+[Constraint]
+-- angle_close does not escape a quoted context so no prefix is needed
+breakout = "angle_close" => prefix = "empty"
+-- onerror needs img, not svg or script
+event = "onerror" => tag = "img"
+-- onload fits svg, not script which has no onload
+event = "onload" => tag != "script"
+-- script tag uses a different structure, restrict to safe event
+tag = "script" => event = "onmouseover"

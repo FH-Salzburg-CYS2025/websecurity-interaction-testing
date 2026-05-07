@@ -1,0 +1,15 @@
+breakout,prefix,tag,event,payload,suffix
+dquote_close,empty,img,onerror,squote_payload,empty
+dquote_close,space,svg,onload,dquote_payload,comment_close
+dquote_close,slash,script,onmouseover,squote_payload,space_slash
+squote_close,empty,svg,onmouseover,dquote_payload,empty
+squote_close,space,script,onmouseover,squote_payload,comment_close
+squote_close,slash,img,onload,dquote_payload,space_slash
+angle_close,empty,script,onmouseover,dquote_payload,empty
+angle_close,empty,img,onerror,squote_payload,comment_close
+angle_close,empty,svg,onload,squote_payload,space_slash
+dquote_close,space,img,onmouseover,squote_payload,empty
+dquote_close,slash,svg,onmouseover,squote_payload,comment_close
+squote_close,space,img,onerror,dquote_payload,space_slash
+squote_close,slash,img,onerror,dquote_payload,empty
+squote_close,empty,svg,onload,dquote_payload,empty

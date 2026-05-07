@@ -1,0 +1,85 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*.*.*"
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: xss_ca-${{ github.ref_name }}-x86_64-linux
+            binary: xss_ca/target/x86_64-unknown-linux-gnu/release/xss_ca
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: xss_ca-${{ github.ref_name }}-aarch64-macos
+            binary: xss_ca/target/aarch64-apple-darwin/release/xss_ca
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: xss_ca-${{ github.ref_name }}-x86_64-windows.exe
+            binary: xss_ca/target/x86_64-pc-windows-msvc/release/xss_ca.exe
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Build release binary
+        working-directory: xss_ca
+        run: cargo build --release --target ${{ matrix.target }}
+      - name: Stage artifact (Unix)
+        if: matrix.os != 'windows-latest'
+        run: cp ${{ matrix.binary }} ${{ matrix.artifact }}
+      - name: Stage artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        run: copy ${{ matrix.binary }} ${{ matrix.artifact }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: "${{ github.ref_name }}"
+          body: |
+            ## xss_ca ${{ github.ref_name }}
+
+            XSS covering-array tool - translates CA CSVs into concrete injection payloads and clusters raw payload lists
+            by structural pattern across script-tag, event-handler, attribute-breakout, and JS-context injectionpoint models.
+
+            ### Usage
+            ```sh
+            xss_ca --translate <ca_file.csv> [...]
+            xss_ca --cluster  <payload_file> [...]
+            ```
+            Output is written next to each input file under `translated_exploits/`
+            or `clusters/` respectively.
+
+            ### Downloads
+            | File | Platform |
+            |------|----------|
+            | `xss_ca-${{ github.ref_name }}-x86_64-linux` | Linux x86-64 |
+            | `xss_ca-${{ github.ref_name }}-aarch64-macos` | macOS ARM |
+            | `xss_ca-${{ github.ref_name }}-x86_64-windows.exe` | Windows x86-64 |
+          files: |
+            xss_ca-${{ github.ref_name }}-x86_64-linux/xss_ca-${{ github.ref_name }}-x86_64-linux
+            xss_ca-${{ github.ref_name }}-aarch64-macos/xss_ca-${{ github.ref_name }}-aarch64-macos
+            xss_ca-${{ github.ref_name }}-x86_64-windows.exe/xss_ca-${{ github.ref_name }}-x86_64-windows.exe
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}

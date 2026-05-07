@@ -1,0 +1,33 @@
+name: Release Docs
+on:
+  push:
+    tags:
+      - "v*.*.*"
+permissions:
+  contents: write
+jobs:
+  build-docs:
+    name: Build and Release Protocol PDF
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install Libertinus fonts
+        run: |
+          curl -fsSL https://github.com/alerque/libertinus/releases/download/v7.040/Libertinus-7.040.zip -o libertinus.zip
+          unzip -q libertinus.zip -d libertinus
+          mkdir -p ~/.local/share/fonts
+          find libertinus -name "*.otf" -exec cp {} ~/.local/share/fonts/ \;
+          fc-cache -f
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v5
+
+      - name: Compile protocol PDF
+        run: typst compile --root document document/template/thesis.typ protocol-${{ github.ref_name }}.pdf
+
+      - name: Attach PDF to release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: protocol-${{ github.ref_name }}.pdf

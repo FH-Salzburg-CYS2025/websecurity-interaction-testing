@@ -1,0 +1,14 @@
+breakout,separator,payload,comment,encoding
+squote_break,semicolon,dquote_payload,line_comment,none
+squote_break,newline,backtick_payload,block_comment,none
+squote_break,space,dquote_payload,none,unicode_escape
+dquote_break,semicolon,backtick_payload,none,unicode_escape
+dquote_break,newline,squote_payload,line_comment,none
+dquote_break,space,backtick_payload,block_comment,none
+backtick_break,semicolon,squote_payload,block_comment,none
+backtick_break,newline,dquote_payload,none,unicode_escape
+backtick_break,space,squote_payload,line_comment,none
+bracket_break,semicolon,dquote_payload,block_comment,none
+bracket_break,newline,backtick_payload,line_comment,none
+bracket_break,space,squote_payload,none,unicode_escape
+squote_break,semicolon,dquote_payload,none,none

@@ -1,0 +1,25 @@
+[System]
+Name: EventHandler
+
+[Parameter]
+-- Template: <{tag} {src_attr} {event}={quote}{payload}{quote}>
+-- Example: <img src="x" onerror="console.log('rowhammer')">
+-- Group: rowhammer
+
+tag (enum): img, svg, body, input, video
+src_attr (enum): empty, src_x, src_valid
+event (enum): onerror, onload, onfocus, onmouseover, onclick
+payload (enum): squote_payload, dquote_payload, eval_payload
+quote_style (enum): dquote, squote, no_quote
+tag_case (enum): lower, upper, mixed
+
+[Constraint]
+-- onerror only fires when a src is present and fails to load
+event = "onerror" => src_attr != "empty"
+-- svg and body do not support src attributes
+tag = "svg" => src_attr = "empty"
+tag = "body" => src_attr = "empty"
+-- onfocus only makes sense on input-like elements
+event = "onfocus" => tag = "input"
+-- onload fires on resource-loading tags, not input
+event = "onload" => tag != "input"

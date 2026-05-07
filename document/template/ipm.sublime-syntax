@@ -1,0 +1,50 @@
+%YAML 1.2
+---
+name: IPM
+file_extensions: [ipm, ipm.txt]
+scope: source.ipm
+
+contexts:
+  main:
+    # Comments
+    - match: '--.*$'
+      scope: comment.line.ipm
+
+    # Section headers [System], [Parameter], [Constraint]
+    - match: '^\[(\w+)\]'
+      captures:
+        1: keyword.control.section.ipm
+
+    # Name: value line
+    - match: '^(Name)(:)\s*(\w+)'
+      captures:
+        1: keyword.other.name.ipm
+        2: punctuation.separator.ipm
+        3: entity.name.type.ipm
+
+    # Parameter definition: name (enum): val1, val2
+    - match: '^\s*(\w+)\s*(\(enum\))\s*(:)'
+      captures:
+        1: variable.parameter.ipm
+        2: storage.type.ipm
+        3: punctuation.separator.ipm
+
+    # Constraint implication arrow
+    - match: '=>'
+      scope: keyword.operator.logical.ipm
+
+    # Constraint operators
+    - match: '!='
+      scope: keyword.operator.comparison.ipm
+
+    - match: '(?<![=!<>])=(?!=|>)'
+      scope: keyword.operator.assignment.ipm
+
+    # Quoted string values
+    - match: '"[^"]*"'
+      scope: string.quoted.double.ipm
+
+    # Symbolic values (unquoted identifiers after : or ,)
+    - match: '(?<=[:,])\s*([a-zA-Z_]\w*)'
+      captures:
+        1: constant.other.ipm

@@ -1,0 +1,15 @@
+open_tag,payload,close_tag,encoding,whitespace
+script_open,squote_payload,script_close,none,none
+Script_open,dquote_payload,Script_close,html_entity,none
+SCRIPT_open,eval_payload,SCRIPT_close,none,none
+script_open,dquote_payload,SCRIPT_close,url_encoded,space
+Script_open,eval_payload,script_close,none,space
+SCRIPT_open,squote_payload,Script_close,none,space
+script_open,eval_payload,Script_close,url_encoded,tab
+Script_open,squote_payload,SCRIPT_close,html_entity,tab
+SCRIPT_open,dquote_payload,script_close,none,tab
+script_open,eval_payload,Script_close,url_encoded,newline
+Script_open,squote_payload,SCRIPT_close,html_entity,newline
+SCRIPT_open,dquote_payload,script_close,none,newline
+script_open,squote_payload,script_close,html_entity,space
+script_open,squote_payload,script_close,url_encoded,none

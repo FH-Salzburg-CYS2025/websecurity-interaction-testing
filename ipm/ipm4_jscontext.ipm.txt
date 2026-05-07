@@ -1,0 +1,22 @@
+[System]
+Name: JSContext
+
+[Parameter]
+-- Template: {breakout}{separator}{payload}{separator}{comment}
+-- Example: '; console.log('rowhammer'); //
+-- Used when input lands inside an existing <script> block
+-- Group: rowhammer
+
+breakout (enum): squote_break, dquote_break, backtick_break, bracket_break
+separator (enum): semicolon, newline, space
+payload (enum): squote_payload, dquote_payload, backtick_payload
+comment (enum): line_comment, block_comment, none
+encoding (enum): none, unicode_escape
+
+[Constraint]
+-- quote style of payload must not match breakout to avoid re-breaking context
+breakout = "squote_break" => payload != "squote_payload"
+breakout = "dquote_break" => payload != "dquote_payload"
+breakout = "backtick_break" => payload != "backtick_payload"
+-- unicode escape obfuscates the payload, a comment after it is redundant
+encoding = "unicode_escape" => comment = "none"

@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/xss_ca"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "rust-toolchain"
+    directory: "/xss_ca"
+    schedule:
+      interval: "daily"
